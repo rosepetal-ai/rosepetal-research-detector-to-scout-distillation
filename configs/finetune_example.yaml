@@ -1,0 +1,52 @@
+# Fine-tuning example — adapt a trained scout to a NEW production
+# dataset (README §5 walks through the full workflow).
+#
+# Same architecture as the paper recipe (the checkpoint must match);
+# shorter schedule and a lower learning rate for warm-started
+# fine-tuning. Launch with:
+#
+#   python -m detector_to_scout.train \
+#       --config configs/finetune_example.yaml \
+#       --teacher-targets targets/new_dataset_targets.jsonl \
+#       --init-checkpoint runs/distill_seed1337/final_state.pt \
+#       --run-dir runs/finetune_new_dataset \
+#       --device cuda
+#
+# --init-checkpoint loads model weights only; the optimizer and step
+# counter start fresh. Drop the flag to train from the ImageNet-
+# initialised backbone instead.
+
+model:
+  backbone: timm:resnet18
+  image_size: 256
+  feature_dim: 256
+  num_queries: 100
+  num_heads: 8
+  num_encoder_layers: 2
+  num_decoder_layers: 2
+  multi_scale: true
+  score_threshold: 0.05
+  min_area: 4
+  top_k: 32
+  timm:
+    pretrained: true            # only used when NOT warm-starting
+    in_chans: 3
+
+manifests:
+  train: data/new_dataset/train.jsonl   # EDIT ME
+  val: data/new_dataset/val.jsonl       # EDIT ME
+
+teacher_targets:
+  - targets/new_dataset_targets.jsonl   # EDIT ME (build_targets.py output)
+
+training:
+  max_steps: 5000               # shorter schedule for warm-started fine-tuning
+  batch_size: 16
+  learning_rate: 5.0e-5         # halved vs the from-scratch recipe
+  weight_decay: 1.0e-4
+  seed: 1337
+  loss:
+    class_weight: 1.0
+    l1_weight: 5.0
+    giou_weight: 2.0
+    image_weight: 1.0

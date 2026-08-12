@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Checkpoints / exports (never commit weights)
+*.pt
+*.pth
+*.onnx
+*.engine
+*.safetensors
+
+# Runs / data / targets
+runs/
+data/
+targets/
+*.jsonl
+
+# Keep tracked example/config assets
+!configs/*.yaml
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

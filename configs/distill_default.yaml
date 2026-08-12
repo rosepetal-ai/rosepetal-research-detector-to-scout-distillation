@@ -1,0 +1,49 @@
+# Paper recipe — the E09 multi-scale distilled student, exactly as
+# measured ("Boxes to Scores", Sections 3.3-3.4).
+#
+#   30,000 steps, batch size 16, AdamW (lr 1e-4, weight decay 1e-4),
+#   fp32, 256 px letterboxed inputs, seed 1337, loss weights
+#   class 1.0 / L1 5.0 / GIoU 2.0 / image-BCE 1.0.
+#
+# Point `manifests:` at your images JSONL files (see README §3) and
+# `teacher_targets:` at the output of build_targets.py (or pass
+# --teacher-targets on the CLI). Relative paths resolve against the
+# CWD first, then against this config file's directory.
+
+model:
+  backbone: timm:resnet18       # truncated ResNet-18 (final stage dropped)
+  image_size: 256               # square letterboxed input side (px)
+  feature_dim: 256              # transformer model width d
+  num_queries: 100              # learnable decoder queries
+  num_heads: 8
+  num_encoder_layers: 2
+  num_decoder_layers: 2
+  multi_scale: true             # strides 4/8/16, channels 64/128/256 -> 5,376 tokens
+  # Optional diagnostic-box filters at inference (not deployed outputs):
+  score_threshold: 0.05
+  min_area: 4
+  top_k: 32
+  timm:
+    pretrained: true            # ImageNet-pretrained backbone init (paper recipe)
+    in_chans: 3
+
+manifests:
+  train: data/train.jsonl       # EDIT ME — training images manifest
+  val: data/val.jsonl           # EDIT ME — validation images manifest
+
+# Output of build_targets.py (TRAIN images only — see the leakage
+# warning in README §3). CLI --teacher-targets overrides this list.
+teacher_targets:
+  - targets/teacher_targets.jsonl
+
+training:
+  max_steps: 30000
+  batch_size: 16
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-4
+  seed: 1337
+  loss:
+    class_weight: 1.0
+    l1_weight: 5.0
+    giou_weight: 2.0
+    image_weight: 1.0           # image-level BCE on the decoupled head
