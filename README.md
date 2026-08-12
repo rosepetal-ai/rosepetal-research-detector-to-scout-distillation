@@ -3,6 +3,8 @@
 Companion code for the paper:
 
 > **Boxes to Scores: Distilling Box-Supervised Defect Detectors into Compact Image-Level Anomaly Scouts**
+>
+> 📄 [Read the paper (PDF)](docs/paper.pdf)
 
 ## 1. What this is
 
