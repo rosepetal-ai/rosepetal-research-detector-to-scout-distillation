@@ -97,7 +97,7 @@ Each output line is one image:
  "summary": {"n_boxes": 1, "max_score": 0.93, "top_label": "0"}}
 ```
 
-`bbox` is `xyxy` in pixels of the original image, whatever the input format was, and `image_id` is the manifest's, so the trainer finds the record even when the predictions only had `image_path`. The tool also writes `summary.json` next to the output file (images written, images with boxes, manifest records, the files read and how many of their lines matched), prints how many records it wrote, and notes the manifest images that have no teacher record: training supervises those toward background only. It exits with code 2 on a missing file, a malformed line or several `--predictions` without `--merge`.
+`bbox` is `xyxy` in pixels of the original image, whatever the input format was, and `image_id` is the manifest's, so the trainer finds the record even when the predictions only had `image_path`. The tool also writes `summary.json` next to the output file (images written, images with boxes, manifest records, the files read and how many of their lines matched), prints how many records it wrote, and notes the manifest images that have no teacher record: training supervises those toward background only. It exits with code 2 on a missing file, a malformed predictions line or several `--predictions` without `--merge`.
 
 ### Several teachers
 
