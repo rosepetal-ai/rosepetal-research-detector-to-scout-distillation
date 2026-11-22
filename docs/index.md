@@ -128,7 +128,7 @@ python -m detector_to_scout.train \
     --device cuda
 ```
 
-At the end the run scores the validation images and writes `final_state.pt`, `predictions.jsonl`, `metrics.json` (validation image AUROC), `summary.json` and the per-step `train_log.jsonl` to the run folder.
+During the run, each step adds a line to `train_log.jsonl`; at the end the run scores the validation images and writes `final_state.pt`, `predictions.jsonl`, `metrics.json` (validation image AUROC) and `summary.json` to the run folder.
 
 ### Inference
 
