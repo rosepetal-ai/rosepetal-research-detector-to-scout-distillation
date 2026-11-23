@@ -336,7 +336,7 @@ Each run writes into `--run-dir`: `train_log.jsonl` (per-step losses + matching 
 
 ## 7. Inference
 
-### 7.1 Preprocessing spec (must match training bit-for-bit)
+### 7.1 Preprocessing spec (must match the inference path bit-for-bit)
 
 1. Aspect-preserving resize so the longer side equals 256 px (bilinear).
 2. Zero-pad to 256×256, centered (letterbox).
@@ -413,7 +413,7 @@ ONNX file is standard; re-verify parity after conversion).
 ## 8. Repo layout + troubleshooting
 
 ```
-detector-to-scout-distillation/
+rosepetal-research-detector-to-scout-distillation/
 ├── detector_to_scout/
 │   ├── __init__.py          # package exports
 │   ├── model.py             # RT-Scout student, losses, Hungarian matching, letterbox
@@ -428,6 +428,8 @@ detector-to-scout-distillation/
 ├── examples/
 │   └── make_dummy_dataset.py  # synthetic images + synthetic teacher predictions
 ├── docs/
+│   ├── *.md                 # documentation pages (see Documentation below)
+│   ├── paper.pdf
 │   └── distillation_schematic.{png,pdf}
 ├── requirements.txt
 ├── README.md
@@ -440,7 +442,7 @@ detector-to-scout-distillation/
 | Symptom | Likely cause / fix |
 |---|---|
 | `--device cuda requested but no GPU is reachable` | No CUDA device visible to torch. Fix the driver/container (e.g. restart the container after a host driver update); the tool never silently falls back to CPU. |
-| `image not found: ...` at training start | Manifest `image_path` doesn't resolve. Paths are tried absolute → CWD-relative → manifest-dir-relative. |
+| `image not found: ...` during training | Manifest `image_path` doesn't resolve. Paths are tried absolute → CWD-relative → manifest-dir-relative. |
 | `multiple --predictions files require an explicit --merge first-seen-wins` | You passed several teachers without opting into the paper's merge policy. Read §4 before doing so. |
 | Every training image reports `n_matched=0` | Targets JSONL `image_id`s don't match the manifest's. `build_targets.py` canonicalises ids to the manifest's — rebuild targets with the same manifest you train with. |
 | Val AUROC is `null` | Your val manifest has only one class (`ok` or `nok`); AUROC needs both. |
@@ -448,3 +450,15 @@ detector-to-scout-distillation/
 | ONNX parity assert fails | Version drift or a modified graph. Re-export with `--opset 17`, verify torch/onnxruntime versions, and check you did not add normalization to the preprocessing. |
 | Scores cluster near 0.5 after very short runs | Expected: the image head starts from a balanced 0.0-bias init; discrimination emerges over thousands of steps (the paper recipe is 30k). |
 | scipy missing | The matcher falls back to greedy matching with a warning. Results will differ from the paper — install scipy for exact reproduction. |
+
+## Documentation
+
+| Page | Contents |
+|---|---|
+| [Overview](docs/index.md) | Installation, requirements, the command chain, headline results |
+| [Data and targets](docs/data.md) | Image manifests, the teacher-predictions contract, `build_targets`, merging teachers |
+| [Training](docs/training.md) | The paper recipe, configuration keys and options, run outputs, resuming, fine-tuning, the loss |
+| [Inference and export](docs/inference.md) | Preprocessing, PyTorch scoring, ONNX export and parity, choosing a threshold |
+| [Paper results](docs/results.md) | Every measurement of the paper with its protocol and limits |
+
+The same pages are published at <https://docs.rosepetal.ai/research/detector-to-scout>.
